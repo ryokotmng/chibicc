@@ -87,8 +87,8 @@ Token *tokenize(char *p) {
             continue;
         }
 
-        // Punctuator
-        if (*p == '+' || *p == '-') {
+        // Punctuaotor
+        if (ispunct(*p)) {
             cur = cur->next = new_token(TK_PUNCT, p, p + 1);
             p++;
             continue;

@@ -7,28 +7,20 @@ int main(int argc, char **argv) {
     if (argc != 2)
         error("%s: invalid number of arguments", argv[0]);
 
+    // Tokenize and parse.
     Token *tok = tokenize(argv[1]);
+    Node *node = expr(&tok, tok);
+
+    if (tok->kind != TK_EOF)
+        error_tok(tok, "extra token");
 
     printf("  .globl main\n");
     printf("main:\n");
 
-    // The first token must be a number
-    printf("  mov $%d, %%rax\n", get_number(tok));
-    tok = tok->next;
-
-    // ... followed by either `+ <number>` or `- <number>`.
-    while (tok->kind != TK_EOF) {
-        if (equal(tok, "+")) {
-            printf("  add $%d, %%rax\n", get_number(tok->next));
-            tok = tok->next->next;
-            continue;
-        }
-
-        tok = skip(tok, "-");
-        printf("  sub $%d, %%rax\n", get_number(tok));
-        tok = tok->next;
-    }
-
+    // Traverse the AST to emit assembly.
+    gen_expr(node);
     printf("  ret\n");
+
+    assert(depth == 0);
     return 0;
 }

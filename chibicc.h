@@ -18,7 +18,6 @@
 //
 // tokenize.c
 //
-
 typedef enum {
     TK_PUNCT, // Keywords or punctuators
     TK_NUM,   // Numeric literals
@@ -36,10 +35,42 @@ struct Token {
 };
 
 void error(char *fmt, ...);
-
+void error_tok(Token *tok, char *fmt, ...);
 int get_number(Token *tok);
 bool equal(Token *tok, char *op);
-
 Token *skip(Token *tok, char *s);
-
 Token *tokenize(char *p);
+
+//
+// parse.c
+//
+typedef enum {
+    ND_ADD, // +
+    ND_SUB, // -
+    ND_MUL, // *
+    ND_DIV, // /
+    ND_NUM, // Integer
+} NodeKind;
+
+// AST node type
+typedef struct Node Node;
+struct Node {
+    NodeKind kind; // Node kind
+    Node *lhs;     // Left-hand side
+    Node *rhs;     // Right-hand side
+    int val;       // Used if kind == ND_NUM
+};
+
+Node *new_node(NodeKind kind);
+Node *new_binary(NodeKind kind, Node *lhs, Node *rhs);
+Node *new_num(int val);
+Node *expr(Token **rest, Token *tok);
+Node *mul(Token **rest, Token *tok);
+Node *primary(Token **rest, Token *tok);
+
+//
+// codegen.c
+//
+
+static int depth;
+void gen_expr(Node *node);
