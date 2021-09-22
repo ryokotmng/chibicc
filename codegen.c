@@ -44,6 +44,23 @@ void gen_expr(Node *node) {
         printf("  cqo\n");
         printf("  idiv %%rdi\n");
         return;
+    case ND_EQ:
+    case ND_NE:
+    case ND_LT:
+    case ND_LE:
+        printf("  cmp %%rdi, %%rax\n");
+
+        if (node->kind == ND_EQ)
+            printf("  sete %%al\n");
+        else if (node->kind == ND_NE)
+            printf("  setne %%al\n");
+        else if (node->kind == ND_LT)
+            printf("  setl %%al\n");
+        else if (node->kind == ND_LE)
+            printf("  setle %%al\n");
+
+        printf("  movzb %%al, %%rax\n");
+        return;
     }
 
     error("invalid expression");

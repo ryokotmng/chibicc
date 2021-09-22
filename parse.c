@@ -4,33 +4,95 @@
 
 #include "chibicc.h"
 
-Node *new_node(NodeKind kind) {
+static Node *equality(Token **rest, Token *tok);
+static Node *relational(Token **rest, Token *tok);
+static Node *add(Token **rest, Token *tok);
+static Node *mul(Token **rest, Token *tok);
+static Node *unary(Token **rest, Token *tok);
+static Node *primary(Token **rest, Token *tok);
+
+static Node *new_node(NodeKind kind) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
     return node;
 }
 
-Node *new_binary(NodeKind kind, Node *lhs, Node *rhs) {
+static Node *new_binary(NodeKind kind, Node *lhs, Node *rhs) {
     Node *node = new_node(kind);
     node->lhs = lhs;
     node->rhs = rhs;
     return node;
 }
 
-Node *new_unary(NodeKind kind, Node *expr) {
+static Node *new_unary(NodeKind kind, Node *expr) {
     Node *node = new_node(kind);
     node->lhs = expr;
     return node;
 }
 
-Node *new_num(int val) {
+static Node *new_num(int val) {
     Node *node = new_node(ND_NUM);
     node->val = val;
     return node;
 }
 
-// expr = mul ("+" mul | "-" mul)*
+// expr = equality
 Node *expr(Token **rest, Token *tok) {
+    return equality(rest, tok);
+}
+
+// equality = relational ("==" relational | "!=" relational)*
+static Node *equality(Token **rest, Token *tok) {
+    Node *node = relational(&tok, tok);
+
+    for (;;) {
+        if (equal(tok, "==")) {
+            node = new_binary(ND_EQ, node, relational(&tok, tok->next));
+            continue;
+        }
+
+        if (equal(tok, "!=")) {
+            node = new_binary(ND_NE, node, relational(&tok, tok->next));
+            continue;
+        }
+
+        *rest = tok;
+        return node;
+    }
+}
+
+// relational = add ("<" add | "<=" add | ">" add | ">=" add)*
+static Node *relational(Token **rest, Token *tok) {
+    Node *node = add(&tok, tok);
+
+    for (;;) {
+        if (equal(tok, "<")) {
+            node = new_binary(ND_LT, node, add(&tok, tok->next));
+            continue;
+        }
+
+        if (equal(tok, "<=")) {
+            node = new_binary(ND_LE, node, add(&tok, tok->next));
+            continue;
+        }
+
+        if (equal(tok, ">")) {
+            node = new_binary(ND_LT, add(&tok, tok->next), node);
+            continue;
+        }
+
+        if (equal(tok, ">=")) {
+            node = new_binary(ND_LE, add(&tok, tok->next), node);
+            continue;
+        }
+
+        *rest = tok;
+        return node;
+    }
+}
+
+// add = mul ("+" mul | "-" mul)*
+static Node *add(Token **rest, Token *tok) {
     Node *node = mul(&tok, tok);
 
     for (;;) {
@@ -43,13 +105,14 @@ Node *expr(Token **rest, Token *tok) {
             node = new_binary(ND_SUB, node, mul(&tok, tok->next));
             continue;
         }
+
         *rest = tok;
         return node;
     }
 }
 
 // mul = unary ("*" unary | "/" unary)*
-Node *mul(Token **rest, Token *tok) {
+static Node *mul(Token **rest, Token *tok) {
     Node *node = unary(&tok, tok);
 
     for (;;) {
@@ -70,7 +133,7 @@ Node *mul(Token **rest, Token *tok) {
 
 // unary = ("+" | "-") unary
 //       | primary
-Node *unary(Token **rest, Token *tok) {
+static Node *unary(Token **rest, Token *tok) {
     if (equal(tok, "+"))
         return unary(rest, tok->next);
 
@@ -81,7 +144,7 @@ Node *unary(Token **rest, Token *tok) {
 }
 
 // primary = "(" expr ")" | num
-Node *primary(Token **rest, Token *tok) {
+static Node *primary(Token **rest, Token *tok) {
     if (equal(tok, "(")) {
         Node *node = expr(&tok, tok->next);
         *rest = skip(tok, ")");

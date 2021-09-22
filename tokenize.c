@@ -67,6 +67,19 @@ Token *new_token(TokenKind kind, char *start, char *end) {
     return tok;
 }
 
+bool startswith(char *p, char *q) {
+    return strncmp(p, q, strlen(q)) == 0;
+}
+
+// Read a punctuator token from p and returns its length.
+static int read_punct(char *p) {
+    if (startswith(p, "==") || startswith(p, "!=") ||
+    startswith(p, "<=") || startswith(p, ">="))
+        return 2;
+
+    return ispunct(*p) ? 1 : 0;
+}
+
 // Tokenize `current_input` and returns new tokens.
 Token *tokenize(char *p) {
     current_input = p;
@@ -87,10 +100,11 @@ Token *tokenize(char *p) {
             continue;
         }
 
-        // Punctuaotor
-        if (ispunct(*p)) {
-            cur = cur->next = new_token(TK_PUNCT, p, p + 1);
-            p++;
+        // Punctuaotors
+        int punct_len = read_punct(p);
+        if (punct_len) {
+            cur = cur->next = new_token(TK_PUNCT, p, p + punct_len);
+            p += cur->len;
             continue;
         }
         error_at(p, "invalid token");
