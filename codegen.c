@@ -6,17 +6,17 @@
 
 static int depth;
 
-void push(void) {
+static void push(void) {
     printf("  push %%rax\n");
     depth++;
 }
 
-void pop(char *arg) {
+static void pop(char *arg) {
     printf("  pop %s\n", arg);
     depth--;
 }
 
-void gen_expr(Node *node) {
+static void gen_expr(Node *node) {
     switch (node->kind) {
     case ND_NUM:
         printf("  mov $%d, %%rax\n", node->val);
