@@ -4,6 +4,8 @@
 
 #include "chibicc.h"
 
+static int depth;
+
 void push(void) {
     printf("  push %%rax\n");
     depth++;
@@ -64,4 +66,14 @@ void gen_expr(Node *node) {
     }
 
     error("invalid expression");
+}
+
+void codegen(Node *node) {
+    printf("  .globl main\n");
+    printf("main:\n");
+
+    gen_expr(node);
+    printf("  ret\n");
+
+    assert(depth == 0);
 }

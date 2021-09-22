@@ -159,3 +159,10 @@ static Node *primary(Token **rest, Token *tok) {
 
     error_tok(tok, "expected an expression");
 }
+
+Node *parse(Token *tok) {
+    Node *node = expr(&tok, tok);
+    if (tok->kind != TK_EOF)
+        error_tok(tok, "extra token");
+    return node;
+}

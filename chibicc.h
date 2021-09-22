@@ -66,11 +66,10 @@ struct Node {
     int val;       // Used if kind == ND_NUM
 };
 
-Node *expr(Token **rest, Token *tok);
+Node *parse(Token *tok);
 
 //
 // codegen.c
 //
 
-static int depth;
-void gen_expr(Node *node);
+void codegen(Node *node);

@@ -9,18 +9,7 @@ int main(int argc, char **argv) {
 
     // Tokenize and parse.
     Token *tok = tokenize(argv[1]);
-    Node *node = expr(&tok, tok);
-
-    if (tok->kind != TK_EOF)
-        error_tok(tok, "extra token");
-
-    printf("  .globl main\n");
-    printf("main:\n");
-
-    // Traverse the AST to emit assembly.
-    gen_expr(node);
-    printf("  ret\n");
-
-    assert(depth == 0);
+    Node *node = parse(tok);
+    codegen(node);
     return 0;
 }
