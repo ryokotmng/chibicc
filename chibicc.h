@@ -49,6 +49,7 @@ typedef enum {
     ND_SUB, // -
     ND_MUL, // *
     ND_DIV, // /
+    ND_NEG, // unary -
     ND_NUM, // Integer
 } NodeKind;
 
@@ -64,8 +65,10 @@ struct Node {
 Node *new_node(NodeKind kind);
 Node *new_binary(NodeKind kind, Node *lhs, Node *rhs);
 Node *new_num(int val);
+Node *new_unary(NodeKind kind, Node *expr);
 Node *expr(Token **rest, Token *tok);
 Node *mul(Token **rest, Token *tok);
+Node *unary(Token **rest, Token *tok);
 Node *primary(Token **rest, Token *tok);
 
 //
