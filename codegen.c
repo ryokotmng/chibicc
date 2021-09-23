@@ -115,6 +115,7 @@ void codegen(Node *node) {
         assert(depth == 0);
     }
 
+    // Epilogue
     printf("  mov %%rbp, %%rsp\n");
     printf("  pop %%rbp\n");
     printf("  ret\n");
