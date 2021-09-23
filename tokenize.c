@@ -45,14 +45,14 @@ bool equal(Token *tok, char *op) {
 }
 
 // Ensure that the current token is `s`.
-Token *skip(Token *tok, char *s) {
-    if (!equal(tok, s))
-        error_tok(tok, "expected '%s'", s);
+Token *skip(Token *tok, char *op) {
+    if (!equal(tok, op))
+        error_tok(tok, "expected '%s'", op);
     return tok->next;
 }
 
 // Create a new token.
-Token *new_token(TokenKind kind, char *start, char *end) {
+static Token *new_token(TokenKind kind, char *start, char *end) {
     Token *tok = calloc(1, sizeof(Token));
     tok->kind = kind;
     tok->loc = start;
@@ -60,7 +60,7 @@ Token *new_token(TokenKind kind, char *start, char *end) {
     return tok;
 }
 
-bool startswith(char *p, char *q) {
+static bool startswith(char *p, char *q) {
     return strncmp(p, q, strlen(q)) == 0;
 }
 

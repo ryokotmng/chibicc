@@ -38,7 +38,7 @@ struct Token {
 void error(char *fmt, ...);
 void error_tok(Token *tok, char *fmt, ...);
 bool equal(Token *tok, char *op);
-Token *skip(Token *tok, char *s);
+Token *skip(Token *tok, char *op);
 Token *tokenize(char *p);
 
 //
