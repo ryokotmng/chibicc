@@ -51,13 +51,6 @@ Token *skip(Token *tok, char *s) {
     return tok->next;
 }
 
-// Ensure that the current token is TK_NUM.
-int get_number(Token *tok) {
-    if (tok->kind != TK_NUM)
-        error_tok(tok, "expected a number");
-    return tok->val;
-}
-
 // Create a new token.
 Token *new_token(TokenKind kind, char *start, char *end) {
     Token *tok = calloc(1, sizeof(Token));
