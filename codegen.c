@@ -99,6 +99,10 @@ static void gen_expr(Node *node) {
 
 static void gen_stmt(Node *node) {
     switch (node->kind) {
+        case ND_BLOCK:
+            for (Node *n = node->body; n; n = n->next)
+                gen_stmt(n);
+            return;
         case ND_RETURN:
             gen_expr(node->lhs);
             printf("  jmp .L.return\n");
@@ -132,10 +136,8 @@ void codegen(Function *prog) {
     printf("  mov %%rsp, %%rbp\n");
     printf("  sub $208, %%rsp\n");
 
-    for (Node *n = prog->body; n; n = n->next) {
-        gen_stmt(n);
-        assert(depth == 0);
-    }
+    gen_stmt(prog->body);
+    assert(depth == 0);
 
     // Epilogue
     printf(".L.return:\n");
